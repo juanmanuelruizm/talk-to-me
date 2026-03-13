@@ -19,17 +19,17 @@ Available commands:
 
 def main():
     print("=" * 60)
-    print("  🗣️  English Practice — Conversational AI Tutor")
+    print("  English Practice — Conversational AI Tutor")
     print("=" * 60)
 
     # Check Ollama connection
-    print(f"\n⏳  Checking Ollama connection ({OLLAMA_MODEL})...")
+    print(f"\nChecking Ollama connection ({OLLAMA_MODEL})...")
     if not check_connection():
-        print(f"\n❌  Could not connect to Ollama or model '{OLLAMA_MODEL}' not found.")
+        print(f"\nError: Could not connect to Ollama or model '{OLLAMA_MODEL}' not found.")
         print("    Make sure Ollama is running: ollama serve")
         print(f"    And the model is pulled: ollama pull {OLLAMA_MODEL}")
         sys.exit(1)
-    print("✅  Ollama connected\n")
+    print("Ollama connected\n")
 
     level = DEFAULT_LEVEL
     messages: list[dict] = [
@@ -44,12 +44,12 @@ def main():
         try:
             user_input = input("\n[ENTER to speak | /text to type | /help] > ").strip()
         except (KeyboardInterrupt, EOFError):
-            print("\n\nBye! Keep practicing! 👋")
+            print("\n\nBye! Keep practicing!")
             break
 
         # --- Commands ---
         if user_input.lower() in ("/quit", "/exit"):
-            print("\nBye! Keep practicing! 👋")
+            print("\nBye! Keep practicing!")
             break
 
         if user_input.lower() == "/help":
@@ -58,7 +58,7 @@ def main():
 
         if user_input.lower() == "/reset":
             messages = [{"role": "system", "content": get_system_prompt(level)}]
-            print("🔄  Conversation reset.")
+            print("Conversation reset.")
             continue
 
         if user_input.lower().startswith("/level"):
@@ -66,14 +66,14 @@ def main():
             if len(parts) >= 2 and parts[1] in ("beginner", "intermediate", "advanced"):
                 level = parts[1]
                 messages = [{"role": "system", "content": get_system_prompt(level)}]
-                print(f"🔄  Level changed to '{level}'. Conversation reset.")
+                print(f"Level changed to '{level}'. Conversation reset.")
             else:
                 print("Usage: /level <beginner|intermediate|advanced>")
             continue
 
         # --- Get user message ---
         if user_input.lower() == "/text":
-            user_text = input("📝  Type your message: ").strip()
+            user_text = input("Type your message: ").strip()
             if not user_text:
                 print("(empty message, skipping)")
                 continue
@@ -84,14 +84,14 @@ def main():
                 if len(audio) == 0:
                     print("(no audio captured, try again)")
                     continue
-                print("⏳  Transcribing...")
+                print("Transcribing...")
                 user_text = transcribe(audio)
                 if not user_text:
                     print("(could not understand audio, try again)")
                     continue
-                print(f"\n🗣️  You said: \"{user_text}\"")
+                print(f"\nYou said: \"{user_text}\"")
             except Exception as e:
-                print(f"❌  Audio error: {e}")
+                print(f"Audio error: {e}")
                 print("    Try /text to type your message instead.")
                 continue
         else:
@@ -101,16 +101,16 @@ def main():
         # --- Send to LLM ---
         messages.append({"role": "user", "content": user_text})
 
-        print("⏳  Thinking...")
+        print("Thinking...")
         try:
             response = chat(messages)
         except Exception as e:
-            print(f"❌  LLM error: {e}")
+            print(f"LLM error: {e}")
             messages.pop()  # Remove failed user message
             continue
 
         messages.append({"role": "assistant", "content": response})
-        print(f"\n🤖  Tutor: {response}")
+        print(f"\nTutor: {response}")
 
 
 if __name__ == "__main__":

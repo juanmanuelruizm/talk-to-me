@@ -18,7 +18,7 @@ def record_until_silence() -> np.ndarray:
     silent_blocks = 0
     has_speech = False
 
-    print("🎙️  Listening... (speak now)")
+    print("Listening... (speak now)")
 
     with sd.InputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype="float32") as stream:
         for _ in range(max_blocks):
@@ -41,7 +41,7 @@ def record_until_silence() -> np.ndarray:
         return np.array([], dtype=np.float32)
 
     audio = np.concatenate(audio_chunks, axis=0).flatten()
-    print(f"✅  Recorded {len(audio) / SAMPLE_RATE:.1f}s of audio")
+    print(f"Recorded {len(audio) / SAMPLE_RATE:.1f}s of audio")
     return audio
 
 

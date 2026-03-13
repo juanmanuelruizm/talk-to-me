@@ -34,11 +34,11 @@ def check_connection() -> bool:
 if __name__ == "__main__":
     # Test standalone
     if check_connection():
-        print("✅ Ollama connected")
+        print("Ollama connected")
         resp = chat([
             {"role": "system", "content": "You are a helpful English tutor."},
             {"role": "user", "content": "Hello! How are you?"},
         ])
         print(f"LLM: {resp}")
     else:
-        print("❌ Ollama not reachable or model not found")
+        print("Ollama not reachable or model not found")

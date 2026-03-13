@@ -10,9 +10,9 @@ _model: WhisperModel | None = None
 def _get_model() -> WhisperModel:
     global _model
     if _model is None:
-        print(f"⏳  Loading Whisper model '{WHISPER_MODEL}' (first time may download)...")
+        print(f"Loading Whisper model '{WHISPER_MODEL}' (first time may download)...")
         _model = WhisperModel(WHISPER_MODEL, compute_type=WHISPER_COMPUTE_TYPE)
-        print("✅  Whisper model loaded")
+        print("Whisper model loaded")
     return _model
 
 

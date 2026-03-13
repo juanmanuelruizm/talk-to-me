@@ -1,4 +1,4 @@
-# 🗣️ talk-to-me — AI English Tutor (CLI)
+# talk-to-me — AI English Tutor (CLI)
 
 Practice English by having real conversations with an AI tutor, powered by voice recognition and a local LLM.
 
@@ -95,28 +95,28 @@ También puedes escribir texto directamente sin usar `/text` — cualquier input
 
 ```
 ============================================================
-  🗣️  English Practice — Conversational AI Tutor
+  English Practice — Conversational AI Tutor
 ============================================================
 
-⏳  Checking Ollama connection (llama3.1)...
-✅  Ollama connected
+Checking Ollama connection (llama3.1)...
+Ollama connected
 
 Level: intermediate
 Press ENTER to start speaking, or type a command.
 Type /help for available commands.
 
 [ENTER to speak | /text to type | /help] >
-🎙️  Listening... (speak now)
-✅  Recorded 3.2s of audio
-⏳  Transcribing...
+Listening... (speak now)
+Recorded 3.2s of audio
+Transcribing...
 
-🗣️  You said: "I have went to the store yesterday"
+You said: "I have went to the store yesterday"
 
-⏳  Thinking...
+Thinking...
 
-🤖  Tutor: That sounds like a productive day! What did you buy at the store?
+Tutor: That sounds like a productive day! What did you buy at the store?
 
-📝 Correction: "I have went" → "I went" (use simple past for completed
+Correction: "I have went" → "I went" (use simple past for completed
 actions with a specific time like "yesterday", not present perfect).
 ```
 

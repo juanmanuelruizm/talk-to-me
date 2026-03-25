@@ -1,5 +1,9 @@
 # talk-to-me — AI English Tutor (CLI)
 
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=flat&logo=python&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-local-black?style=flat)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat)
+
 Practice English by having real conversations with an AI tutor, powered by voice recognition and a local LLM.
 
 Hablas por micrófono, la app transcribe tu voz y un LLM local actúa como tutor de inglés: mantiene la conversación, corrige errores y te ayuda a mejorar.
@@ -23,6 +27,7 @@ Micrófono → faster-whisper (STT) → Prompt + historial → Ollama (LLM) → 
 - **Python 3.10+**
 - **Ollama** instalado y corriendo ([ollama.com](https://ollama.com))
 - **Micrófono** funcional (para el modo de voz)
+- **Windows**: PortAudio instalado (se instala automáticamente con `sounddevice` en la mayoría de casos; si hay problemas, instala [PortAudio](http://www.portaudio.com/) manualmente)
 
 ## Instalación
 
@@ -83,7 +88,7 @@ python main.py
 | Comando | Descripción |
 |---|---|
 | `ENTER` | Grabar audio del micrófono |
-| `/text` | Escribir mensaje manualmente |
+| `/text <mensaje>` | Escribir mensaje manualmente |
 | `/level <nivel>` | Cambiar nivel: `beginner`, `intermediate`, `advanced` |
 | `/reset` | Reiniciar conversación (borrar historial) |
 | `/help` | Mostrar ayuda |
@@ -133,6 +138,8 @@ Todos los parámetros se configuran en [`src/config.py`](src/config.py):
 | `SILENCE_DURATION` | `1.5` | Segundos de silencio para cortar grabación |
 | `DEFAULT_LEVEL` | `intermediate` | Nivel por defecto del tutor |
 
+**Whisper models**: `tiny` y `base` son más rápidos pero menos precisos; `large-v3` es el más preciso pero requiere más RAM y GPU para ser fluido.
+
 ## Estructura del proyecto
 
 ```
@@ -160,4 +167,11 @@ talk-to-me/
 
 ## Licencia
 
-MIT
+Este proyecto está bajo la licencia MIT. Úsalo, modifícalo y distribúyelo libremente.
+
+## Autor
+
+**Juan Manuel Ruiz Muñoz**
+
+- LinkedIn: [Juan Manuel Ruiz Muñoz](https://www.linkedin.com/in/juan-manuel-ruiz-mu%C3%B1oz/)
+- GitHub: [@juanmanuelruizm](https://github.com/juanmanuelruizm)

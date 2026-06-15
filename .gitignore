@@ -24,6 +24,9 @@ build/
 # Whisper models cache
 whisper_models/
 
+# Saved conversation sessions
+sessions/
+
 # OS
 .DS_Store
 Thumbs.db

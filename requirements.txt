@@ -1,8 +1,11 @@
+# Dependencias de ejecución. Equivalente a `pip install .` (ver pyproject.toml).
 faster-whisper>=1.0.0
 sounddevice>=0.4.6
 numpy>=1.24.0
 requests>=2.31.0
 
-# Opcional — solo si quieres que el tutor responda con voz (TTS).
-# Descomenta la línea o instala con: pip install pyttsx3
+# Opcional — voz del tutor con pyttsx3 (en macOS no hace falta: se usa `say`).
+# pip install pyttsx3    o    pip install -e ".[tts]"
 # pyttsx3>=2.90
+
+# Desarrollo (tests + lint):  pip install -e ".[dev]"

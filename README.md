@@ -1,12 +1,13 @@
-# talk-to-me — AI English Tutor (CLI)
+# talk-to-me — AI Language Tutor (CLI)
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=flat&logo=python&logoColor=white)
 ![Ollama](https://img.shields.io/badge/Ollama-local-black?style=flat)
+![CI](https://github.com/juanmanuelruizm/talk-to-me/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat)
 
-Practice English by having real conversations with an AI tutor, powered by voice recognition and a local LLM.
+Practice a language by having real conversations with an AI tutor, powered by voice recognition and a local LLM.
 
-Hablas por micrófono, la app transcribe tu voz y un LLM local actúa como tutor de inglés: mantiene la conversación, corrige errores y te ayuda a mejorar.
+Hablas por micrófono, la app transcribe tu voz y un LLM local actúa como tutor: mantiene la conversación, corrige errores y te ayuda a mejorar. Pensada para practicar inglés, pero también funciona con español, francés, alemán, italiano y portugués.
 
 > ¿Primera vez? Sigue la **[Guía rápida paso a paso (GUIA.md)](GUIA.md)** — pensada para empezar en 5 minutos aunque nunca hayas usado Ollama.
 
@@ -16,22 +17,24 @@ Hablas por micrófono, la app transcribe tu voz y un LLM local actúa como tutor
 - 🧠 **100% local y privado** — todo corre en tu máquina (Ollama + Whisper), sin enviar tu voz a la nube
 - ⚡ **Respuesta en streaming** — el tutor responde en tiempo real, palabra a palabra
 - 📊 **3 niveles** — beginner, intermediate y advanced, cambiables sobre la marcha
-- 🔊 **Voz opcional (TTS)** — el tutor también te puede responder hablando
-- 💾 **Guarda tus sesiones** — exporta la conversación a Markdown para repasar
+- 🌍 **Multi-idioma** — inglés, español, francés, alemán, italiano o portugués (`/language`)
+- 🔊 **Voz opcional (TTS)** — el tutor también te puede responder hablando (`say` en macOS, `pyttsx3` en el resto)
+- 💾 **Guarda tus sesiones** — exporta la conversación a Markdown (`/save`, o al salir)
 - 🛠️ **Configurable sin tocar código** — variables de entorno o un archivo `.env`
+- ✅ **Tests y CI** — suite de `pytest` sin micrófono ni red, y lint con `ruff`
 
 ## Cómo funciona
 
 ```
-Micrófono → faster-whisper (STT) → Prompt + historial → Ollama (LLM) → Respuesta en terminal
+Micrófono → faster-whisper (STT) → Prompt + historial → Ollama (LLM) → Respuesta en terminal (+ voz)
      ↑                                                                          |
-     └──────────────────── Lees la respuesta y vuelves a hablar ←──────────────┘
+     └──────────────────── Lees/escuchas la respuesta y vuelves a hablar ←──────┘
 ```
 
 1. **Hablas** por el micrófono (o escribes texto)
 2. **faster-whisper** transcribe tu audio a texto
-3. El texto se envía a **Ollama** (Llama 3.1) junto con el historial de conversación y un system prompt de tutor
-4. El LLM responde como tutor: te contesta, corrige errores y sugiere mejoras
+3. El texto se envía a **Ollama** junto con el historial reciente y un system prompt de tutor
+4. El LLM responde como tutor: te contesta, corrige errores en una línea final `Correction:` y sigue la charla
 5. Repites — la conversación se mantiene con contexto
 
 ## Requisitos previos
@@ -64,6 +67,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Alternativa: instalar el paquete (te da el comando `talk-to-me`):
+
+```bash
+pip install -e .            # solo ejecución
+pip install -e ".[tts]"     # + voz del tutor con pyttsx3 (no hace falta en macOS)
+pip install -e ".[dev]"     # + pytest y ruff
+```
+
 ### 3. Instalar Ollama y descargar el modelo
 
 ```bash
@@ -82,24 +93,26 @@ ollama list    # verificar que llama3.1 aparece
 
 ## Uso
 
-Desde la raíz del proyecto (recomendado):
+Desde la raíz del proyecto, cualquiera de estas tres formas es equivalente:
 
 ```bash
 python run.py
+python -m talk_to_me
+talk-to-me                  # si hiciste pip install -e .
 ```
 
-O entrando a `src`:
+Opciones de línea de comandos (todas opcionales; también se pueden fijar en `.env`):
 
 ```bash
-cd src
-python main.py
+talk-to-me --level beginner --language es --model qwen2.5:7b
+talk-to-me --help
 ```
 
 ### Flujo de la app
 
-1. La app verifica la conexión con Ollama
+1. La app verifica la conexión con Ollama (si el modelo no está, te lista los que sí tienes)
 2. Muestra el prompt esperando input
-3. **Pulsa ENTER** para hablar por micrófono — habla en inglés y quédate en silencio para que detecte el fin
+3. **Pulsa ENTER** para hablar por micrófono — habla y quédate en silencio para que detecte el fin, o **pulsa ENTER otra vez** para cortar
 4. La transcripción se muestra en pantalla
 5. El tutor responde con correcciones y continúa la conversación
 
@@ -107,16 +120,18 @@ python main.py
 
 | Comando | Descripción |
 |---|---|
-| `ENTER` | Grabar audio del micrófono |
-| `/text` | Escribir un mensaje manualmente |
+| `ENTER` | Grabar audio del micrófono (ENTER de nuevo para parar) |
+| `/text [mensaje]` | Escribir un mensaje manualmente |
 | `/level <nivel>` | Cambiar nivel: `beginner`, `intermediate`, `advanced` |
+| `/language <código>` | Cambiar idioma: `en`, `es`, `fr`, `de`, `it`, `pt` |
+| `/history` | Ver la conversación hasta ahora |
 | `/save` | Guardar la conversación en `sessions/` como Markdown |
-| `/tts` | Activar/desactivar la voz del tutor (requiere `pyttsx3`) |
+| `/tts` | Activar/desactivar la voz del tutor |
 | `/reset` | Reiniciar conversación (borrar historial) |
 | `/help` | Mostrar ayuda |
-| `/quit`, `/exit` | Salir |
+| `/quit`, `/exit` | Salir (si hay turnos sin guardar, pregunta si quieres guardarlos) |
 
-También puedes escribir texto directamente sin usar `/text` — cualquier input que no sea un comando se trata como mensaje.
+También puedes escribir texto directamente sin usar `/text` — cualquier input que no sea un comando se trata como mensaje. `Ctrl+C` durante una grabación o una respuesta cancela solo ese turno.
 
 ### Ejemplo de sesión
 
@@ -128,12 +143,12 @@ También puedes escribir texto directamente sin usar `/text` — cualquier input
 Checking Ollama connection (llama3.1)...
 Ollama connected
 
-Level: intermediate  |  TTS: off
-Press ENTER to start speaking, or type a command.
+Level: intermediate  |  Language: English  |  Model: llama3.1  |  TTS: off
+Press ENTER to start speaking, or type a message or a command.
 Type /help for available commands.
 
 [ENTER to speak | /text to type | /help] >
-Listening... (speak now)
+Listening... (speak, stay silent to finish, or press ENTER to stop)
 Recorded 3.2s of audio
 Transcribing...
 
@@ -141,7 +156,7 @@ You said: "I have went to the store yesterday"
 
 Tutor: That sounds like a productive day! What did you buy at the store?
 
-Correction: "I have went" → "I went" (use simple past for completed
+Correction: "I have went" -> "I went" (use simple past for completed
 actions with a specific time like "yesterday", not present perfect).
 ```
 
@@ -156,60 +171,82 @@ cp .env.example .env
 
 | Parámetro | Default | Descripción |
 |---|---|---|
+| `DEFAULT_LEVEL` | `intermediate` | Nivel por defecto del tutor |
+| `TARGET_LANGUAGE` | `en` | Idioma que practicas: `en`, `es`, `fr`, `de`, `it`, `pt` |
+| `MAX_HISTORY_TURNS` | `20` | Pares pregunta/respuesta enviados al LLM (0 = todo el historial) |
+| `AUTO_SAVE_ON_EXIT` | `false` | Guardar automáticamente al salir (si no, pregunta) |
 | `WHISPER_MODEL` | `base` | Modelo de Whisper: `tiny`, `base`, `small`, `medium`, `large-v3` |
 | `WHISPER_COMPUTE_TYPE` | `int8` | `int8` para CPU, `float16` para GPU |
+| `WHISPER_DEVICE` | `auto` | `auto`, `cpu`, `cuda` |
+| `WHISPER_LANGUAGE` | *(vacío)* | Forzar el idioma de transcripción; vacío = sigue a `TARGET_LANGUAGE` |
 | `OLLAMA_URL` | `http://localhost:11434` | URL del servidor de Ollama |
 | `OLLAMA_MODEL` | `llama3.1` | Modelo de Ollama a usar |
 | `OLLAMA_TIMEOUT` | `120` | Timeout (s) para la respuesta del LLM |
+| `OLLAMA_NUM_CTX` | `0` | Tamaño de contexto en tokens (0 = default de Ollama) |
+| `OLLAMA_TEMPERATURE` | `0.3` | Creatividad del modelo; bajo = más consistente siguiendo el formato de corrección (`-1` = default de Ollama) |
 | `SILENCE_THRESHOLD` | `0.01` | Umbral RMS para detectar silencio |
 | `SILENCE_DURATION` | `1.5` | Segundos de silencio para cortar grabación |
+| `NO_SPEECH_TIMEOUT` | `6` | Segundos sin voz antes de cancelar la grabación |
 | `MAX_RECORD_SECONDS` | `30` | Máximo de segundos por grabación |
-| `TTS_ENABLED` | `false` | Que el tutor responda también con voz (requiere `pyttsx3`) |
+| `TTS_ENABLED` | `false` | Que el tutor responda también con voz |
+| `TTS_BACKEND` | `auto` | `auto` (`say` en macOS, `pyttsx3` en el resto), `say`, `pyttsx3` |
 | `TTS_RATE` | `170` | Velocidad de la voz (palabras por minuto) |
-| `DEFAULT_LEVEL` | `intermediate` | Nivel por defecto del tutor |
 
-Los valores por defecto viven en [`src/config.py`](src/config.py); cualquier variable de entorno o entrada en `.env` los sobreescribe.
+Los valores por defecto viven en [`talk_to_me/config.py`](talk_to_me/config.py); cualquier variable de entorno o entrada en `.env` los sobreescribe.
 
 **Whisper models**: `tiny` y `base` son más rápidos pero menos precisos; `large-v3` es el más preciso pero requiere más RAM y GPU para ser fluido.
 
+**Historial**: Ollama trunca el contexto por el principio cuando se llena, lo que en sesiones largas hacía desaparecer el system prompt (y el tutor dejaba de corregir). Por eso solo se envían los últimos `MAX_HISTORY_TURNS` pares; el historial completo se conserva para `/history` y `/save`. Si quieres más memoria, sube `OLLAMA_NUM_CTX` (p. ej. `8192`).
+
 ### Voz del tutor (TTS opcional)
 
-Para que el tutor te responda hablando, instala `pyttsx3` (offline, multiplataforma) y actívalo:
+- **macOS**: no necesitas instalar nada, se usa el comando `say` del sistema.
+- **Linux / Windows**: instala `pyttsx3` (`pip install pyttsx3` o `pip install -e ".[tts]"`). En Linux puede hacer falta un motor de voz como `espeak`.
+
+Actívalo con `TTS_ENABLED=true` en tu `.env`, o en cualquier momento dentro de la app con `/tts`. La línea `Correction:` no se lee en voz alta, solo la parte conversacional.
+
+## Desarrollo
 
 ```bash
-pip install pyttsx3
+pip install -e ".[dev]"
+pytest              # tests unitarios (no necesitan micrófono, Ollama ni descargar modelos)
+ruff check .        # lint
+ruff format .       # formato
 ```
 
-Luego pon `TTS_ENABLED=true` en tu `.env`, o actívalo en cualquier momento dentro de la app con el comando `/tts`.
+Cada módulo se puede probar por separado: `python -m talk_to_me.audio`, `python -m talk_to_me.stt`, `python -m talk_to_me.llm`, `python -m talk_to_me.tts`.
 
 ## Estructura del proyecto
 
 ```
 talk-to-me/
-├── src/
-│   ├── main.py       # Loop principal CLI
-│   ├── audio.py      # Captura de micrófono + detección de silencio
+├── talk_to_me/
+│   ├── cli.py        # Loop principal CLI: comandos, turnos de voz/texto, salida
+│   ├── audio.py      # Captura de micrófono + detección de silencio (SilenceDetector)
 │   ├── stt.py        # Transcripción con faster-whisper
-│   ├── llm.py        # Comunicación con Ollama API (incl. streaming)
-│   ├── tts.py        # Text-to-Speech opcional (pyttsx3)
-│   ├── prompts.py    # System prompts del tutor (por nivel)
-│   └── config.py     # Configuración (con soporte de variables de entorno)
-├── sessions/         # Conversaciones guardadas con /save (ignorado por git)
+│   ├── llm.py        # Cliente de la API de Ollama (streaming, errores, comprobación de modelo)
+│   ├── tts.py        # Text-to-Speech opcional (say / pyttsx3)
+│   ├── prompts.py    # System prompt del tutor (por nivel e idioma)
+│   ├── session.py    # Historial de la conversación, recorte y exportación a Markdown
+│   ├── config.py     # Configuración (variables de entorno / .env)
+│   └── __main__.py   # python -m talk_to_me
+├── tests/            # pytest
+├── sessions/         # Conversaciones guardadas (ignorado por git)
 ├── run.py            # Lanzador desde la raíz (python run.py)
-├── .env.example      # Plantilla de configuración
+├── pyproject.toml    # Paquete, extras [tts] [dev], config de ruff/pytest
 ├── requirements.txt
+├── .env.example      # Plantilla de configuración
 ├── GUIA.md           # Guía rápida paso a paso
 ├── LICENSE
-├── .gitignore
 └── README.md
 ```
 
 ## Roadmap
 
-- [x] **Text-to-Speech (TTS)** — Que el tutor también responda con voz (`pyttsx3`)
+- [x] **Text-to-Speech (TTS)** — Que el tutor también responda con voz
 - [x] **Streaming de respuesta** — Mostrar la respuesta del LLM token a token en tiempo real
 - [x] **Persistencia de sesiones** — Guardar historial de conversaciones (`/save`)
-- [ ] **Soporte multi-idioma** — Francés, alemán, etc. (cambiar prompts y config de Whisper)
+- [x] **Soporte multi-idioma** — Español, francés, alemán, italiano, portugués (`/language`)
 - [ ] **Web UI** — Interfaz web con FastAPI + frontend con grabación de audio en navegador
 - [ ] **Métricas de progreso** — Tracking de errores comunes, vocabulario aprendido, etc.
 

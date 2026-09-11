@@ -14,15 +14,16 @@ dist/
 build/
 *.egg-info/
 
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+
 # IDE
 .vscode/
 .idea/
 
 # Environment variables
 .env
-
-# Whisper models cache
-whisper_models/
 
 # Saved conversation sessions
 sessions/

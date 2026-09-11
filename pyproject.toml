@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "talk-to-me"
+version = "0.2.0"
+description = "Practice a language by having real conversations with a local AI tutor (Whisper + Ollama)."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Juan Manuel Ruiz Muñoz" }]
+requires-python = ">=3.10"
+dependencies = [
+    "faster-whisper>=1.0.0",
+    "sounddevice>=0.4.6",
+    "numpy>=1.24.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+tts = ["pyttsx3>=2.90"]
+dev = ["pytest>=8.0", "ruff>=0.5"]
+
+[project.scripts]
+talk-to-me = "talk_to_me.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/juanmanuelruizm/talk-to-me"
+
+[tool.setuptools]
+packages = ["talk_to_me"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

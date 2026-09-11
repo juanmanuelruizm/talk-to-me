@@ -68,8 +68,8 @@ Instala lo necesario:
 pip install -r requirements.txt
 ```
 
-> ⏳ La primera vez también se descargará el modelo de Whisper (reconocimiento de
-> voz) automáticamente la primera vez que hables. Es normal que tarde un poco.
+> ⏳ La primera vez que pulses ENTER para hablar se descargará el modelo de Whisper
+> (reconocimiento de voz) automáticamente, antes de empezar a grabar. Es normal que tarde un poco.
 
 ---
 
@@ -99,11 +99,13 @@ Press ENTER to start speaking, or type a command.
 
 | Quiero... | Hago... |
 |---|---|
-| **Hablar por el micrófono** | Pulso `ENTER`, hablo en inglés y me quedo en silencio ~1,5 s |
+| **Hablar por el micrófono** | Pulso `ENTER`, hablo y me quedo en silencio ~1,5 s (o pulso `ENTER` otra vez para cortar) |
 | **Escribir en vez de hablar** | Escribo `/text` y pulso Enter |
 | **Cambiar de nivel** | `/level beginner`, `/level intermediate` o `/level advanced` |
-| **Que el tutor me hable** | `/tts` (necesita `pip install pyttsx3`) |
-| **Guardar la conversación** | `/save` (se guarda en la carpeta `sessions/`) |
+| **Practicar otro idioma** | `/language es` (también `fr`, `de`, `it`, `pt`, `en`) |
+| **Ver lo que llevamos hablado** | `/history` |
+| **Que el tutor me hable** | `/tts` (en macOS funciona sin instalar nada; en Linux/Windows: `pip install pyttsx3`) |
+| **Guardar la conversación** | `/save` (se guarda en la carpeta `sessions/`; al salir también te lo pregunta) |
 | **Empezar de cero** | `/reset` |
 | **Ver la ayuda** | `/help` |
 | **Salir** | `/quit` |
@@ -121,8 +123,11 @@ You said: "I have went to the store yesterday"
 
 Tutor: That sounds productive! What did you buy?
 
-Correction: "I have went" → "I went" (usa pasado simple con "yesterday").
+Correction: "I have went" -> "I went" (usa pasado simple con "yesterday").
 ```
+
+> ⌨️ `Ctrl+C` mientras grabas o mientras el tutor responde cancela solo ese turno; en el
+> prompt principal, sale de la app.
 
 ---
 
@@ -140,17 +145,27 @@ Abre `.env` y descomenta lo que necesites, por ejemplo:
 ```env
 WHISPER_MODEL=small      # más preciso que "base" (pero más lento)
 OLLAMA_MODEL=llama3.1
+TARGET_LANGUAGE=en       # o es, fr, de, it, pt
 TTS_ENABLED=true         # el tutor te responde con voz
 SILENCE_DURATION=2.0     # te da más tiempo de silencio antes de cortar
 ```
+
+También puedes pasar opciones al arrancar: `python run.py --level beginner --language fr`.
 
 ---
 
 ## 🆘 Solución de problemas
 
 **"Could not connect to Ollama..."**
-→ Ollama no está corriendo. Abre una terminal y ejecuta `ollama serve`. Comprueba
-con `ollama list` que `llama3.1` aparece.
+→ Ollama no está corriendo. Abre una terminal y ejecuta `ollama serve`.
+
+**"model 'llama3.1' is not available in Ollama"**
+→ Falta descargarlo: `ollama pull llama3.1`. La app te lista los modelos que sí tienes;
+puedes usar uno de ellos con `--model <nombre>` o `OLLAMA_MODEL=<nombre>` en `.env`.
+
+**"(no speech detected)"**
+→ No se detectó voz en los primeros ~6 s. Comprueba el micro o baja `SILENCE_THRESHOLD`
+(p. ej. `0.005`) en tu `.env`. Puedes subir el margen con `NO_SPEECH_TIMEOUT=10`.
 
 **"Audio error" o no detecta el micrófono**
 → Revisa que tu micro funcione y tenga permisos. Mientras lo arreglas, usa `/text`
@@ -168,8 +183,13 @@ sube también `SILENCE_THRESHOLD` (p. ej. `0.02`).
 ligero. Con GPU, pon `WHISPER_COMPUTE_TYPE=float16`.
 
 **El tutor no habla con `/tts`**
-→ Instala la librería: `pip install pyttsx3`. En Linux puede que necesites un motor
-de voz del sistema (p. ej. `espeak`).
+→ En macOS debería funcionar sin instalar nada (usa `say`). En Linux/Windows instala la
+librería: `pip install pyttsx3`; en Linux puede que necesites además un motor de voz
+del sistema (p. ej. `espeak`).
+
+**El tutor deja de corregir en conversaciones largas**
+→ Ya no debería pasar: solo se envían los últimos 20 turnos al modelo (`MAX_HISTORY_TURNS`).
+Si quieres que recuerde más, sube `OLLAMA_NUM_CTX=8192` en tu `.env`.
 
 ---
 

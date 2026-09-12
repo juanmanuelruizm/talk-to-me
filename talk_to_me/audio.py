@@ -1,4 +1,4 @@
-"""Captura de micrófono con detección de silencio (y parada manual con ENTER)."""
+"""Microphone capture with silence detection (and manual stop with ENTER)."""
 
 from collections.abc import Callable
 from enum import Enum
@@ -7,18 +7,18 @@ import numpy as np
 
 from talk_to_me import config
 
-BLOCK_DURATION = 0.1  # segundos por bloque de lectura del micrófono
+BLOCK_DURATION = 0.1  # seconds per microphone read block
 
 
 class Decision(Enum):
     CONTINUE = "continue"
-    STOP_SILENCE = "silence"  # hubo voz y después silencio suficiente
-    STOP_NO_SPEECH = "no_speech"  # nunca se detectó voz
-    STOP_MAX = "max"  # se alcanzó la duración máxima
+    STOP_SILENCE = "silence"  # speech was heard, then enough silence
+    STOP_NO_SPEECH = "no_speech"  # no speech was ever detected
+    STOP_MAX = "max"  # maximum duration reached
 
 
 class SilenceDetector:
-    """Decide, bloque a bloque, cuándo parar de grabar. Lógica pura (sin audio real)."""
+    """Decides, block by block, when to stop recording. Pure logic (no real audio)."""
 
     def __init__(
         self,
@@ -60,12 +60,12 @@ def rms(block: np.ndarray) -> float:
 
 
 def record_until_silence(stop_requested: Callable[[], bool] | None = None) -> np.ndarray:
-    """Graba del micrófono hasta detectar silencio, agotar el tiempo o `stop_requested()`.
+    """Records from the microphone until silence, timeout, or `stop_requested()`.
 
-    Devuelve un array numpy float32 mono a SAMPLE_RATE. Si no se detectó voz,
-    devuelve un array vacío.
+    Returns a mono float32 numpy array at SAMPLE_RATE. If no speech was
+    detected, returns an empty array.
     """
-    import sounddevice as sd  # import perezoso: requiere PortAudio, no hace falta para /text
+    import sounddevice as sd  # lazy import: needs PortAudio, not required for /text
 
     block_size = int(config.SAMPLE_RATE * BLOCK_DURATION)
     detector = SilenceDetector(
@@ -97,6 +97,6 @@ def record_until_silence(stop_requested: Callable[[], bool] | None = None) -> np
 
 
 if __name__ == "__main__":
-    print("Test de grabación de audio. Habla y luego quédate en silencio.")
+    print("Audio recording test. Speak, then stay silent.")
     captured = record_until_silence()
-    print(f"Audio capturado: {len(captured)} samples, {len(captured) / config.SAMPLE_RATE:.2f}s")
+    print(f"Captured audio: {len(captured)} samples, {len(captured) / config.SAMPLE_RATE:.2f}s")

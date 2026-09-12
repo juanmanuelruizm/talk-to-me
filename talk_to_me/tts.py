@@ -1,12 +1,12 @@
-"""Text-to-Speech opcional para que el tutor responda también con voz.
+"""Optional text-to-speech so the tutor can also reply with voice.
 
 Backends:
-  - `say`: el comando nativo de macOS. Sin dependencias y fiable.
-  - `pyttsx3`: multiplataforma y offline (usa el motor de voz del sistema).
-    Requiere `pip install pyttsx3` (o `pip install -e .[tts]`).
+  - `say`: the native macOS command. No dependencies and reliable.
+  - `pyttsx3`: cross-platform and offline (uses the system voice engine).
+    Requires `pip install pyttsx3` (or `pip install -e .[tts]`).
 
-Con TTS_BACKEND=auto se usa `say` en macOS y `pyttsx3` en el resto.
-Todo es opcional: si no hay backend disponible, las funciones no fallan.
+With TTS_BACKEND=auto, `say` is used on macOS and `pyttsx3` elsewhere.
+Everything is optional: if no backend is available, the functions do nothing.
 """
 
 import platform
@@ -44,7 +44,7 @@ class _Pyttsx3Backend:
     name = "pyttsx3"
 
     def __init__(self) -> None:
-        import pyttsx3  # import perezoso: solo si se usa TTS
+        import pyttsx3  # lazy import: only if TTS is used
 
         self._engine = pyttsx3.init()
         self._engine.setProperty("rate", config.TTS_RATE)
@@ -73,13 +73,13 @@ def _get_backend():
         elif choice in ("auto", "pyttsx3"):
             _backend = _Pyttsx3Backend()
     except Exception:
-        # pyttsx3 no instalado o sin motor de voz en el sistema
+        # pyttsx3 not installed or no voice engine on the system
         _backend = None
     return _backend
 
 
 def is_available() -> bool:
-    """True si hay algún backend de voz utilizable."""
+    """True if a usable voice backend exists."""
     return _get_backend() is not None
 
 
@@ -94,7 +94,7 @@ _MARKDOWN = re.compile(r"[*_`#>]+")
 
 
 def clean_for_speech(text: str) -> str:
-    """Deja solo la parte conversacional: quita correcciones, markdown y flechas."""
+    """Keeps only the conversational part: strips corrections, markdown, and arrows."""
     cleaned = _INLINE_CORRECTION.sub("", text)
     cleaned = _TRAILING_CORRECTION.split(cleaned, maxsplit=1)[0]
     cleaned = cleaned.replace("→", " to ").replace("->", " to ")
@@ -105,7 +105,7 @@ def clean_for_speech(text: str) -> str:
 
 
 def speak(text: str) -> None:
-    """Lee el texto en voz alta (bloqueante). No-op si TTS no está disponible."""
+    """Reads the text aloud (blocking). No-op if TTS is not available."""
     backend = _get_backend()
     if backend is None or not text.strip():
         return
@@ -115,7 +115,7 @@ def speak(text: str) -> None:
         backend.stop()
         raise
     except Exception:
-        # Si algo falla en pleno uso, no rompemos la conversación.
+        # If something fails mid-use, do not break the conversation.
         pass
 
 
@@ -130,7 +130,7 @@ def stop() -> None:
 
 if __name__ == "__main__":
     if is_available():
-        print(f"TTS disponible (backend: {backend_name()}). Probando voz...")
+        print(f"TTS available (backend: {backend_name()}). Testing voice...")
         speak("Hello! This is your tutor speaking. (Correction: this part is not read.) Bye!")
     else:
-        print("TTS no disponible. Instala pyttsx3: pip install pyttsx3")
+        print("TTS not available. Install pyttsx3: pip install pyttsx3")

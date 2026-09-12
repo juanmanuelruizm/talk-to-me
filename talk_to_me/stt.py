@@ -1,4 +1,4 @@
-"""Transcripción de voz a texto con faster-whisper."""
+"""Speech-to-text transcription with faster-whisper."""
 
 import numpy as np
 
@@ -8,10 +8,10 @@ _model = None
 
 
 def ensure_loaded():
-    """Carga el modelo de Whisper (una sola vez). Llamarlo antes de grabar evita esperas."""
+    """Loads the Whisper model (once). Calling it before recording avoids waiting later."""
     global _model
     if _model is None:
-        from faster_whisper import WhisperModel  # import perezoso: es pesado
+        from faster_whisper import WhisperModel  # lazy import: it is heavy
 
         print(f"Loading Whisper model '{config.WHISPER_MODEL}' (first time may download)...")
         _model = WhisperModel(
@@ -24,7 +24,7 @@ def ensure_loaded():
 
 
 def transcribe(audio: np.ndarray, language: str | None = None) -> str:
-    """Transcribe un array float32 (16kHz mono) a texto en el idioma indicado."""
+    """Transcribes a float32 array (16kHz mono) to text in the given language."""
     if len(audio) == 0:
         return ""
     language = language or config.WHISPER_LANGUAGE or config.TARGET_LANGUAGE
@@ -36,6 +36,6 @@ def transcribe(audio: np.ndarray, language: str | None = None) -> str:
 if __name__ == "__main__":
     from talk_to_me.audio import record_until_silence
 
-    print("Test de STT. Habla algo:")
+    print("STT test. Say something:")
     text = transcribe(record_until_silence())
-    print(f"Transcripción: '{text}'")
+    print(f"Transcription: '{text}'")

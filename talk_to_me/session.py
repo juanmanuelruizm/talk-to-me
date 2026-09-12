@@ -1,4 +1,4 @@
-"""Estado de una conversación: turnos, recorte de historial y exportación a Markdown."""
+"""Conversation state: turns, history trimming, and Markdown export."""
 
 from datetime import datetime
 from pathlib import Path
@@ -11,7 +11,7 @@ SESSIONS_DIR = Path(__file__).resolve().parent.parent / "sessions"
 
 
 class Conversation:
-    """Historial de una sesión de práctica (sin incluir el system prompt en `turns`)."""
+    """History of a practice session (the system prompt is not part of `turns`)."""
 
     def __init__(self, level: str, language: str, model: str = "") -> None:
         self.level = level
@@ -20,7 +20,7 @@ class Conversation:
         self.turns: list[Message] = []
         self.unsaved = False
 
-    # --- Estado ---
+    # --- State ---
     @property
     def system_prompt(self) -> str:
         return get_system_prompt(self.level, self.language)
@@ -37,7 +37,7 @@ class Conversation:
         self.turns = []
         self.unsaved = False
 
-    # --- Turnos ---
+    # --- Turns ---
     def add_user(self, text: str) -> None:
         self.turns.append({"role": "user", "content": text})
         self.unsaved = True
@@ -47,26 +47,26 @@ class Conversation:
         self.unsaved = True
 
     def drop_last_user(self) -> None:
-        """Quita el último mensaje si es del usuario (p. ej. cuando el LLM falla)."""
+        """Removes the last message if it is from the user (e.g. when the LLM fails)."""
         if self.turns and self.turns[-1]["role"] == "user":
             self.turns.pop()
             self.unsaved = bool(self.turns)
 
     def for_llm(self, max_turns: int = 0) -> list[Message]:
-        """Mensajes a enviar al LLM: system prompt + los últimos `max_turns` pares.
+        """Messages to send to the LLM: system prompt + the last `max_turns` pairs.
 
-        `max_turns=0` envía todo el historial. Recortar evita que Ollama trunque
-        por el principio (y se lleve el system prompt) en sesiones largas.
+        `max_turns=0` sends the full history. Trimming prevents Ollama from
+        truncating from the top (and dropping the system prompt) in long sessions.
         """
         turns = self.turns
         if max_turns > 0:
             turns = turns[-(2 * max_turns) :]
-            # Nunca empezar por una respuesta del asistente sin su pregunta.
+            # Never start with an assistant reply without its question.
             if turns and turns[0]["role"] == "assistant":
                 turns = turns[1:]
         return [{"role": "system", "content": self.system_prompt}, *turns]
 
-    # --- Exportación ---
+    # --- Export ---
     def to_markdown(self, now: datetime | None = None) -> str:
         now = now or datetime.now()
         lines = [
@@ -85,7 +85,7 @@ class Conversation:
         return "\n".join(lines)
 
     def save(self, sessions_dir: Path = SESSIONS_DIR, now: datetime | None = None) -> Path:
-        """Guarda la conversación como Markdown y devuelve la ruta del archivo."""
+        """Saves the conversation as Markdown and returns the file path."""
         now = now or datetime.now()
         sessions_dir.mkdir(parents=True, exist_ok=True)
         path = sessions_dir / f"session_{now:%Y%m%d_%H%M%S}.md"

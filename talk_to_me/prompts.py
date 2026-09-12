@@ -1,8 +1,8 @@
-"""System prompts del tutor, parametrizados por nivel e idioma objetivo."""
+"""Tutor system prompts, parametrized by level and target language."""
 
 LEVELS = ("beginner", "intermediate", "advanced")
 
-# Código ISO 639-1 → nombre del idioma (en inglés, tal y como se usa en el prompt).
+# ISO 639-1 code → language name (in English, as used in the prompt).
 LANGUAGES = {
     "en": "English",
     "es": "Spanish",
@@ -15,7 +15,7 @@ LANGUAGES = {
 DEFAULT_LEVEL = "intermediate"
 DEFAULT_LANGUAGE = "en"
 
-# Marcador literal con el que el tutor introduce la corrección (lo usan tts.py y las sesiones).
+# Literal marker the tutor uses to introduce the correction (used by tts.py and sessions).
 CORRECTION_MARKER = "Correction:"
 
 _LEVEL_STYLE = {
@@ -57,7 +57,7 @@ _TEMPLATE = (
 
 
 def get_system_prompt(level: str = DEFAULT_LEVEL, language: str = DEFAULT_LANGUAGE) -> str:
-    """Devuelve el system prompt para un nivel e idioma; valores desconocidos usan los defaults."""
+    """Returns the system prompt for a level and language; unknown values use the defaults."""
     style = _LEVEL_STYLE.get(level, _LEVEL_STYLE[DEFAULT_LEVEL])
     language_name = LANGUAGES.get(language, LANGUAGES[DEFAULT_LANGUAGE])
     return _TEMPLATE.format(language=language_name, style=style, marker=CORRECTION_MARKER)

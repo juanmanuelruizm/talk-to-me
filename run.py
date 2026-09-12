@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Lanzador de la app desde la raíz del proyecto.
+"""App launcher from the project root.
 
-Equivalente a `python -m talk_to_me`; se mantiene por comodidad.
+Equivalent to `python -m talk_to_me`; kept for convenience.
 """
 
 from talk_to_me.cli import main

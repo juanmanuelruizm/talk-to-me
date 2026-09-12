@@ -1,4 +1,4 @@
-"""Loop principal de la CLI: comandos, turnos de voz/texto y salida ordenada."""
+"""Main CLI loop: commands, voice/text turns, and clean exit."""
 
 import argparse
 import platform
@@ -31,7 +31,7 @@ PROMPT = "\n[ENTER to speak | /text to type | /help] > "
 
 
 def _enter_pressed() -> bool:
-    """True si el usuario ha pulsado ENTER desde la última comprobación (solo en terminales)."""
+    """True if the user pressed ENTER since the last check (interactive terminals only)."""
     if not sys.stdin.isatty():
         return False
     if platform.system() == "Windows":
@@ -46,13 +46,13 @@ def _enter_pressed() -> bool:
 
     ready, _, _ = select.select([sys.stdin], [], [], 0)
     if ready:
-        sys.stdin.readline()  # consumir la línea para que no llegue al siguiente input()
+        sys.stdin.readline()  # consume the line so it does not reach the next input()
         return True
     return False
 
 
 class App:
-    """Estado y comandos de una sesión interactiva."""
+    """State and commands of an interactive session."""
 
     def __init__(
         self,
@@ -164,7 +164,7 @@ class App:
     # --- Turns ---
     def voice_turn(self) -> None:
         try:
-            stt.ensure_loaded()  # antes de grabar, para no hacer esperar al usuario después
+            stt.ensure_loaded()  # before recording, so the user does not wait afterwards
             print("Listening... (speak, stay silent to finish, or press ENTER to stop)")
             audio = record_until_silence(stop_requested=_enter_pressed)
             if len(audio) == 0:

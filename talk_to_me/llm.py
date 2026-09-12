@@ -1,4 +1,4 @@
-"""Cliente mínimo de la API de chat de Ollama (con y sin streaming)."""
+"""Minimal client for the Ollama chat API (streaming and non-streaming)."""
 
 import json
 from collections.abc import Iterator
@@ -10,7 +10,7 @@ from talk_to_me import config
 
 
 class LLMError(Exception):
-    """Error al hablar con Ollama (conexión, HTTP o error devuelto por el modelo)."""
+    """Error talking to Ollama (connection, HTTP, or an error returned by the model)."""
 
 
 def _options() -> dict:
@@ -41,7 +41,7 @@ def _raise_for_http_error(response: requests.Response) -> None:
 
 
 def chat(messages: list[dict], model: str | None = None) -> str:
-    """Envía mensajes a Ollama y devuelve la respuesta completa del asistente."""
+    """Sends messages to Ollama and returns the full assistant reply."""
     try:
         response = requests.post(
             f"{config.OLLAMA_URL}/api/chat",
@@ -58,7 +58,7 @@ def chat(messages: list[dict], model: str | None = None) -> str:
 
 
 def chat_stream(messages: list[dict], model: str | None = None) -> Iterator[str]:
-    """Igual que chat() pero devuelve la respuesta token a token (streaming)."""
+    """Same as chat() but yields the reply token by token (streaming)."""
     try:
         response = requests.post(
             f"{config.OLLAMA_URL}/api/chat",
@@ -96,7 +96,7 @@ def _strip_tag(name: str) -> str:
 
 
 def _model_matches(wanted: str, available: list[str]) -> bool:
-    """`wanted` sin tag equivale a cualquier tag; con tag debe coincidir exactamente."""
+    """`wanted` without a tag matches any tag; with a tag it must match exactly."""
     if wanted in available:
         return True
     if ":" in wanted:
@@ -117,7 +117,7 @@ class ConnectionStatus:
 
 
 def check_connection(model: str | None = None) -> ConnectionStatus:
-    """Verifica que Ollama está corriendo y que el modelo está descargado."""
+    """Checks that Ollama is running and the model is pulled."""
     model = model or config.OLLAMA_MODEL
     try:
         resp = requests.get(f"{config.OLLAMA_URL}/api/tags", timeout=5)
